@@ -1,0 +1,44 @@
+package com.article.micro.controllers;
+
+import org.hibernate.mapping.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.article.micro.entities.ArticleDTO;
+import com.article.micro.services.IArticleService;
+
+@RestController
+@RequestMapping("/api/articles")
+public class ArticleController {
+	
+    @Autowired
+    private IArticleService articleService;
+
+    @PostMapping
+    public ResponseEntity<ArticleDTO> createArticle(@RequestBody ArticleDTO articleDTO) {
+        ArticleDTO createdArticle = articleService.createProduct(articleDTO);
+        return ResponseEntity.ok(createdArticle);
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<ArticleDTO> updateArticle(@PathVariable Long id, @RequestBody ArticleDTO articleDTO) {
+        ArticleDTO updatedArticle = articleService.updateProduct(id, articleDTO);
+        return ResponseEntity.ok(updatedArticle);
+    }
+    
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteArticle(@PathVariable Long id) {
+        articleService.deleteArticle(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+    
+    @GetMapping
+    public ResponseEntity<List<ArticleDTO>> getAllArticles() {
+        List<ArticleDTO> articles = articleService.getAllArticles();
+        return ResponseEntity.ok(articles);
+    }
+
+}

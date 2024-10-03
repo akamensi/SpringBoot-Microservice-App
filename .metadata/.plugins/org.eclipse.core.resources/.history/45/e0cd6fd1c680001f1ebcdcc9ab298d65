@@ -1,0 +1,5 @@
+package com.supplier.micro.services;
+
+public interface ISupplierService {
+
+}

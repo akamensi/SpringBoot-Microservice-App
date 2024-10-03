@@ -1,0 +1,54 @@
+package com.supplier.micro.services;
+
+import java.util.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.supplier.micro.entities.Supplier;
+import com.supplier.micro.entities.SupplierDTO;
+import com.supplier.micro.repositories.SupplierRepository;
+
+@Service
+public class SupllierServiceImpl implements ISupplierService {
+
+    @Autowired
+    private SupplierRepository supplierRepository;
+    
+    
+    @Override
+    public List<SupplierDTO> getAllSuppliers() {
+        return supplierRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    
+    @Override
+    public SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO) {
+        // Find the existing supplier
+        Optional<Supplier> optionalSupplier = supplierRepository.findById(id);
+        if (!optionalSupplier.isPresent()) {
+            throw new ResourceNotFoundException("Supplier not found with id: " + id);
+        }
+
+        Supplier existingSupplier = optionalSupplier.get();
+
+        // Update only the fields that are not null in the DTO
+        if (supplierDTO.name() != null) {
+            existingSupplier.setName(supplierDTO.name());
+        }
+        if (supplierDTO.address() != null) {
+            existingSupplier.setAddress(supplierDTO.address());
+        }
+        if (supplierDTO.email() != null) {
+            existingSupplier.setEmail(supplierDTO.email());
+        }
+
+        // Save the updated supplier
+        Supplier updatedSupplier = supplierRepository.save(existingSupplier);
+
+        // Convert to DTO and return
+        return new SupplierDTO(updatedSupplier.getId(), updatedSupplier.getName(), updatedSupplier.getAddress(), updatedSupplier.getEmail());
+    }
+}

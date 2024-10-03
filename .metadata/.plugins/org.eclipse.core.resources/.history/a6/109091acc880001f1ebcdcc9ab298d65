@@ -1,0 +1,5 @@
+package com.supplier.micro.controllers;
+
+public class SupplierController {
+
+}

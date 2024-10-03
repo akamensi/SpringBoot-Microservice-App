@@ -1,0 +1,7 @@
+package com.supplier.micro.entities;
+import javax.persistence.*;
+
+@Entity
+public class Supplier {
+
+}

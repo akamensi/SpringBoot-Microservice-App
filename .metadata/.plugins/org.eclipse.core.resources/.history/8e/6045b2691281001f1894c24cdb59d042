@@ -1,0 +1,11 @@
+spring.application.name=Gateway-Service
+
+server.port=9191
+
+spring.cloud.gateway.routes[0].id=r1
+spring.cloud.gateway.routes[0].uri=http://127.0.0.1:8001
+spring.cloud.gateway.routes[0].predicates[0]=Path=/api/suppliers/**
+
+spring.cloud.gateway.routes[1].id=r2
+spring.cloud.gateway.routes[1].uri=http://127.0.0.1:8002
+spring.cloud.gateway.routes[1].predicates[0]=Path=/api/articles/**

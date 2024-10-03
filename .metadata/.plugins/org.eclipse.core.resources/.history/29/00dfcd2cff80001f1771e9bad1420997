@@ -1,0 +1,5 @@
+package com.article.micro.services;
+
+public class ArticleServiceImpl {
+
+}

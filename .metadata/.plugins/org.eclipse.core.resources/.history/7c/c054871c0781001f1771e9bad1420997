@@ -1,0 +1,117 @@
+package com.article.micro.services;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.article.micro.entities.Article;
+import com.article.micro.entities.ArticleDTO;
+import com.article.micro.models.ArticleSupplier;
+import com.article.micro.models.Supplier;
+import com.article.micro.repositories.ArticleRepository;
+
+@Service
+public class ArticleServiceImpl implements IArticleService {
+	
+    @Autowired
+    private ArticleRepository articleRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
+    
+    
+    @Override
+    public ArticleDTO createArticle(ArticleDTO articleDTO) {
+        Article article = new Article(null, articleDTO.name(), articleDTO.price(), articleDTO.supplierId());
+        Article savedArticle = articleRepository.save(article);
+        return new ArticleDTO(savedArticle.getId(), savedArticle.getName(), savedArticle.getPrice(), savedArticle.getSupplierId());
+    }
+    
+    @Override
+    public ArticleDTO updateArticle(Long id, ArticleDTO articleDTO) {
+        Article article = articleRepository.findById(id).orElseThrow(() -> new RuntimeException("Article not found"));
+        article.setName(articleDTO.name());
+        article.setPrice(articleDTO.price());
+        article.setSupplierId(articleDTO.supplierId());
+        Article updatedArticle = articleRepository.save(article);
+        return new ArticleDTO(updatedArticle.getId(), updatedArticle.getName(), updatedArticle.getPrice(), updatedArticle.getSupplierId());
+    }
+    
+    
+    @Override
+    public void deleteArticle(Long id) {
+        articleRepository.deleteById(id);
+    }
+    
+    
+    @Override
+    public List<ArticleDTO> getAllArticles() {
+        List<Article> articles = articleRepository.findAll();
+        return articles.stream()
+                .map(article -> new ArticleDTO(article.getId(), article.getName(), article.getPrice(), article.getSupplierId()))
+                .collect(Collectors.toList());
+    }
+    
+    
+    @Override
+    public ArticleDTO getArticleById(Long id) {
+        Article article = articleRepository.findById(id).orElseThrow(() -> new RuntimeException("Article not found"));
+        return new ArticleDTO(article.getId(), article.getName(), article.getPrice(), article.getSupplierId());
+    }
+    
+    
+	/*
+	 * @Override public ArticleSupplier getArticleWithSupplier(Long id) { Article
+	 * article = articleRepository.findById(id).orElseThrow(() -> new
+	 * RuntimeException("Article not found")); Supplier supplier =
+	 * restTemplate.getForObject("http://Supplier-Service/suppliers/" +
+	 * article.getSupplierId(), Supplier.class); return new ArticleSupplier(article,
+	 * supplier); }
+	 */
+    
+	/*
+	 * @Override public ArticleSupplier getArticleWithSupplier(Long articleId) {
+	 * ArticleSupplier articleSupplier = new ArticleSupplier();
+	 * 
+	 * // Find the article by its ID Article article =
+	 * articleRepository.findById(articleId) .orElseThrow(() -> new
+	 * RuntimeException("Article not found"));
+	 * 
+	 * // Fetch the supplier information from the supplier microservice Supplier
+	 * supplier = restTemplate.getForObject( "http://127.0.0.1:8001/suppliers/" +
+	 * article.getSupplierId(), Supplier.class );
+	 * 
+	 * // Set the article and supplier in the response model
+	 * articleSupplier.setArticle(article); articleSupplier.setSupplier(supplier);
+	 * 
+	 * return articleSupplier; }
+	 */
+    
+    @Override
+    public ArticleSupplier getArticleWithSupplier(Long articleId) {
+        ArticleSupplier articleSupplier = new ArticleSupplier();
+        
+        
+        // Find the article by its ID
+        Article article = articleRepository.findById(articleId)
+                                           .orElseThrow(() -> new RuntimeException("Article not found"));
+        
+        // Fetch the supplier information from the supplier microservice
+        Supplier supplier = restTemplate.getForObject(
+            "http://127.0.0.1:8001/api/suppliers/" + article.getSupplierId(),
+            Supplier.class
+        );
+        
+        // Set the article and supplier in the response model
+        articleSupplier.setArticle(article);
+        articleSupplier.setSupplier(supplier);
+        
+        return articleSupplier;
+    }
+
+    
+
+}

@@ -1,0 +1,5 @@
+package com.supplier.micro.repositories;
+
+public interface SupplierRepository {
+
+}
